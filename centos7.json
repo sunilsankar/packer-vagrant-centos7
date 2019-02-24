@@ -1,0 +1,64 @@
+{
+    "variables": {
+        "version": "1.0"
+      },
+      "provisioners": [
+        {
+          "type": "shell",
+          "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+          "script": "scripts/ansible.sh"
+        },
+        {
+          "type": "shell",
+          "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+          "script": "scripts/cleanup.sh"
+        }
+      ],
+      "builders":
+  [
+    {
+      "type": "qemu",
+      "accelerator": "kvm",
+      "headless": false,
+      "qemuargs": [
+        [ "-m", "2048M" ],
+        [ "-smp", "cpus=1,maxcpus=16,cores=4" ]
+      ],
+      "disk_interface": "virtio",
+      "disk_size": 100000,
+      "format": "qcow2",
+      "net_device": "virtio-net",
+
+      "iso_url": "http://linux.cs.uu.nl/centos/7.6.1810/isos/x86_64/CentOS-7-x86_64-Minimal-1810.iso",
+      "iso_checksum": "38d5d51d9d100fd73df031ffd6bd8b1297ce24660dc8c13a3b8b4534a4bd291c",
+      "iso_checksum_type": "sha256",
+
+      "vm_name": "centos7-base",
+      "output_directory": "centos7-base-img",
+
+      "http_directory": "http",
+      "http_port_min": 10082,
+      "http_port_max": 10089,
+
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "10000s",
+
+      "boot_wait": "20s",
+      "boot_command": [
+        "<up><wait><tab><wait> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
+      ],
+
+      "shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p"
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "output": "builds/sunil-centos7.box",
+        "type": "vagrant"
+      }
+    ]
+  ]
+}
